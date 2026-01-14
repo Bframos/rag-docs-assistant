@@ -15,12 +15,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 # ------------------------------
 
-# 4. Copiar requirements
 COPY requirements.txt .
 
-# 5. Instalar dependências de Python
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# 1. Atualizar pip
+RUN pip install --no-cache-dir --upgrade pip
+
+# 2. Instalar PyTorch versão CPU (Isto poupa 4GB!)
+# É CRUCIAL que isto corra ANTES do requirements.txt
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# 3. Instalar o resto
+RUN pip install --no-cache-dir -r requirements.txt
+
 
 # 6. Copiar o código
 COPY src/ src/

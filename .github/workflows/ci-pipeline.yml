@@ -1,6 +1,5 @@
-name: CI Pipeline 
+name: CI Pipeline 🚧
 
-# When?
 on:
   push:
     branches: [ "main" ]
@@ -12,22 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Download the code
+    # 1. NOVO: Libertar espaço em disco ANTES de tudo
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space-action@v1.3.1
+      with:
+        # Apagamos tudo o que não é Python/Docker para ganhar espaço
+        tool-cache: false
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    # 2. Baixar código
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. python config
+    # 3. Configurar Python
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
 
-    # 3. requerements install
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    # 4. Test build docker
+    # 4. Build Docker (Agora com muito mais espaço livre)
     - name: Build Docker Image
       run: docker build . --file Dockerfile --tag rag-app:test

@@ -1,28 +1,27 @@
-# 1. Imagem Base: Usamos uma versão leve do Python (Slim)
-# Python 3.10 ou 3.11 são os mais estáveis para AI hoje.
+# 1. Imagem Base (Python leve)
 FROM python:3.11-slim
 
-# 2. Definir variáveis de ambiente para o Python não criar ficheiros .pyc
-# e para veres os logs em tempo real
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# 3. Criar a pasta de trabalho dentro do container
+# 2. Definir pasta de trabalho
 WORKDIR /app
 
-# 4. Instalar dependências do sistema operativo
-# (Necessário para compilar algumas libs de C++ usadas pelo ChromaDB)
+# --- NOVO BLOCO DE CORREÇÃO ---
+# 3. Instalar dependências de sistema (Compiladores C++)
+# Isto é obrigatório para bibliotecas de IA como ChromaDB e Numpy
 RUN apt-get update && apt-get install -y \
     build-essential \
+    gcc \
+    g++ \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+# ------------------------------
 
-# 5. Copiar e instalar as dependências de Python
+# 4. Copiar requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. Copiar o código todo do projeto para dentro do container
-COPY . .
+# 5. Instalar dependências de Python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 7. Expor a porta que o Streamlit usa
-EXPOSE 8501
+# 6. Copiar o código
+COPY src/ src/
 

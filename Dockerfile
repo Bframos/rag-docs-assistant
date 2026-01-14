@@ -27,5 +27,4 @@ COPY . .
 EXPOSE 8501
 
 # 8. O comando que corre quando o container arranca
-# Healthcheck: verifica se o script de ingestão já correu. Se não, corre-o antes de iniciar a App.
-CMD ["sh", "-c", "if [ ! -d 'chroma_db' ]; then python src/ingestion.py; fi && streamlit run src/ui.py --server.address=0.0.0.0"]
+CMD ["streamlit", "run", "src/ui.py", "--server.address=0.0.0.0"]

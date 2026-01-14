@@ -1,89 +1,59 @@
-# 🤖 Intelligent Tech Support Agent (RAG)
+# 🤖 Intelligent Tech Support Agent (RAG) - Microservices Edition
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
-![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
+![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B)
+![Docker Compose](https://img.shields.io/badge/Orchestration-Docker%20Compose-2496ED)
 ![AI](https://img.shields.io/badge/LLM-Llama%203.3-orange)
-![Streamlit](https://img.shields.io/badge/UI-Interactive-red)
+![CI Pipeline](https://github.com/bframos/rag-docs-assistant/actions/workflows/ci-pipeline.yml/badge.svg)
 
-An AI-powered Technical Support Assistant capable of answering questions based on **any PDF documentation** you upload. It uses **Retrieval-Augmented Generation (RAG)** to provide accurate, context-aware responses without hallucinations.
 
-## ✨ Key Features
-
-* **Drag & Drop Interface:** Upload any technical manual directly in the browser.
-* **On-the-Fly Ingestion:** Automatically processes, chunks, and vectorizes documents in real-time.
-* **Source Citations:** Every answer cites the specific page of the PDF used.
-* **Privacy First:** Runs locally (or in container); data is processed within your session.
+An AI-powered Technical Support Assistant architected as a **Microservices Application**. It uses **RAG (Retrieval-Augmented Generation)** to answer questions based on any uploaded PDF manual.
 
 ## 🏗 Architecture
 
-The system is designed with a decoupled architecture for scalability:
+The system is decoupled into two containers orchestrated by Docker Compose:
 
-1.  **Frontend & Orchestration (`ui.py`):**
-    * Manages user file uploads.
-    * Triggers the ingestion pipeline upon file receipt.
-    * Displays chat interface only after the "Knowledge Base" is ready.
+1.  **Backend Service (`api.py`):**
+    * **Framework:** FastAPI (High-performance Async API).
+    * **Responsibility:** Handles PDF ingestion, Chunking, Vectorization (ChromaDB), and LLM Inference (Llama 3.3 via Groq).
+    * **Endpoints:** `/ingest` (Upload) and `/chat` (Q&A).
 
-2.  **Ingestion Pipeline (`ingestion.py`):**
-    * Extracts text from the uploaded PDF.
-    * Splits text into semantic chunks (500 chars).
-    * Generates embeddings using `sentence-transformers/paraphrase-multilingual`.
-    * Stores vectors in **ChromaDB** (ephemeral or persistent).
-
-3.  **Inference Engine (`app.py`):**
-    * Retrieves top-3 relevant chunks via Semantic Search.
-    * Generates answers using **Llama 3.3 (70B)** via Groq API.
+2.  **Frontend Service (`ui.py`):**
+    * **Framework:** Streamlit.
+    * **Responsibility:** User Interface.
+    * **Communication:** Sends HTTP requests to the Backend API via the internal Docker network (`http://backend:8000`).
 
 ## 🛠 Tech Stack
 
-* **LLM:** Llama 3.3-70b-versatile (via Groq)
-* **Embeddings:** HuggingFace (Open Source & Local)
-* **Vector DB:** ChromaDB
-* **Frontend:** Streamlit
-* **Containerization:** Docker
+* **Orchestration:** Docker Compose
+* **LLM:** Llama 3.3-70b-versatile (Groq API)
+* **Vector DB:** ChromaDB (Persistent Volume)
+* **CI/CD:** GitHub Actions (Automated Build Pipeline) 
+* **Embeddings:** HuggingFace `paraphrase-multilingual`
 * **Language:** Python 3.11
 
-## 🚀 How to Run
+## 🚀 How to Run (The Magic Command)
 
-### Option A: Using Docker (Recommended)
+### Prerequisites
+* Docker & Docker Compose installed.
+* A Groq API Key.
 
-This ensures the application runs exactly as intended, regardless of your OS.
+### Steps
 
-1.  **Build the image:**
-    ```bash
-    docker build -t rag-assistant-app .
+1.  **Clone and Configure:**
+    Create a `.env` file in the root directory:
+    ```env
+    GROQ_API_KEY=your_key_here
     ```
 
-2.  **Run the container:**
-    *(Replace `your_key` with your actual Groq API Key)*
+2.  **Launch the Stack:**
+    This command builds both images and establishes the internal network.
     ```bash
-    docker run -e GROQ_API_KEY="your_key_here" -p 8501:8501 rag-assistant-app
+    docker-compose up --build
     ```
 
 3.  **Access the App:**
-    * Open `http://localhost:8501` in your browser.
-    * **Upload a PDF** in the sidebar and click "Processar".
-    * Start chatting!
-
-### Option B: Local Development
-
-1.  **Clone and Install:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # or venv\Scripts\activate on Windows
-    pip install -r requirements.txt
-    ```
-
-2.  **Configure Environment:**
-    Create a `.env` file:
-    ```env
-    GROQ_API_KEY=gsk_...
-    ```
-
-3.  **Start App:**
-    *(No need to run ingestion scripts manually anymore)*
-    ```bash
-    streamlit run src/ui.py
-    ```
-
-
+    * **Frontend:** Open `http://localhost:8501` to chat.
+    * **API Docs:** Open `http://localhost:8000/docs` to test endpoints directly.
 

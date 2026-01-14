@@ -26,5 +26,3 @@ COPY . .
 # 7. Expor a porta que o Streamlit usa
 EXPOSE 8501
 
-# 8. O comando que corre quando o container arranca
-CMD ["streamlit", "run", "src/ui.py", "--server.address=0.0.0.0"]

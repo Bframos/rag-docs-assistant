@@ -1,0 +1,33 @@
+name: CI Pipeline 
+
+# When?
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Download the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. python config
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    # 3. requerements install
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 4. Test build docker
+    - name: Build Docker Image
+      run: docker build . --file Dockerfile --tag rag-app:test

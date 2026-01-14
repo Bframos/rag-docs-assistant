@@ -12,6 +12,34 @@ An AI-powered Technical Support Assistant architected as a **Microservices Appli
 
 ## 🏗 Architecture
 
+```mermaid
+graph LR
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef app fill:#bbdefb,stroke:#1565c0,stroke-width:2px;
+    classDef db fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    User["👤 User / Browser"]:::user
+
+    subgraph Docker_Network ["🐳 Docker Compose Network"]
+        direction TB
+        Frontend["🖥️ Frontend Service<br/>(Streamlit)"]:::app
+        Backend["⚙️ Backend API<br/>(FastAPI)"]:::app
+        
+        subgraph Persistence
+            Chroma[("🗄️ ChromaDB<br/>Vector Store")]:::db
+            Volume[("💾 Docker Volume")]:::db
+        end
+    end
+
+    External_LLM(("☁️ Groq API<br/>Llama 3.3")):::cloud
+
+    User <-->|1. Upload & Chat| Frontend
+    Frontend <-->|2. HTTP Request| Backend
+    Backend <-->|3. Embeddings| Chroma
+    Chroma <-->|4. Persist Data| Volume
+    Backend <-->|5. Inference| External_LLM
+```
 The system is decoupled into two containers orchestrated by Docker Compose:
 
 1.  **Backend Service (`api.py`):**

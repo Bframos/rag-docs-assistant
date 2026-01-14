@@ -14,10 +14,11 @@ An AI-powered Technical Support Assistant architected as a **Microservices Appli
 
 ```mermaid
 graph LR
-    classDef user fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef app fill:#bbdefb,stroke:#1565c0,stroke-width:2px;
-    classDef db fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px,color:#000;
+    classDef app fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef db fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
+
 
     User["👤 User / Browser"]:::user
 

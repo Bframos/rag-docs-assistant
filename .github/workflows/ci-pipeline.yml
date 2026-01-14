@@ -11,18 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. NOVO: Libertar espaço em disco ANTES de tudo
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space-action@v1.3.1
-      with:
-        # Apagamos tudo o que não é Python/Docker para ganhar espaço
-        tool-cache: false
-        android: true
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
+    # 1. LIMPEZA MANUAL (Sem depender de plugins externos)
+    # Removemos Android SDK, DotNet e Haskell que ocupam muito espaço
+    - name: Free Disk Space (Manual Cleanup)
+      run: |
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
     # 2. Baixar código
     - name: Checkout code
@@ -34,6 +31,6 @@ jobs:
       with:
         python-version: "3.11"
 
-    # 4. Build Docker (Agora com muito mais espaço livre)
+    # 4. Build Docker
     - name: Build Docker Image
       run: docker build . --file Dockerfile --tag rag-app:test

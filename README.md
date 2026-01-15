@@ -52,6 +52,30 @@ The system is decoupled into two containers orchestrated by Docker Compose:
     * **Framework:** Streamlit.
     * **Responsibility:** User Interface.
     * **Communication:** Sends HTTP requests to the Backend API via the internal Docker network (`http://backend:8000`).
+  
+
+## 📂 Codebase Structure
+
+The core logic is modularized to ensure separation of concerns:
+
+### 1. The ETL Pipeline (`src/ingestion.py`)
+Responsible for processing raw data into machine-understandable vectors.
+* **Extract:** Loads PDF documents using `PyPDFLoader`.
+* **Transform:** Splits text into semantic chunks (500 chars) using `RecursiveCharacterTextSplitter`.
+* **Load:** Generates embeddings (via HuggingFace) and saves them into the **ChromaDB** vector store.
+
+### 2. The RAG Engine (`src/app.py`)
+The brain of the retrieval system.
+* **Retrieval:** Performs semantic search on ChromaDB to find the top-3 most relevant document chunks for a user query.
+* **Generation:** Constructs a context-rich prompt and queries the **Llama 3.3** model via Groq.
+
+### 3. The API Gateway (`src/api.py`)
+* Acts as the entry point for the backend container.
+* Exposes REST endpoints (`/ingest`, `/chat`) and handles HTTP request/response lifecycles.
+
+### 4. The Frontend (`src/ui.py`)
+* A pure Python interface using Streamlit.
+* Completely decoupled from logic; it only communicates with the backend via API calls.
 
 ## 🛠 Tech Stack
 

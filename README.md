@@ -1,4 +1,4 @@
-# 🤖 Intelligent Tech Support Agent (RAG) - Microservices Edition
+# 🤖 Intelligent Tech Support Agent (RAG) 
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
@@ -45,7 +45,7 @@ The system is decoupled into two containers orchestrated by Docker Compose:
 
 1.  **Backend Service (`api.py`):**
     * **Framework:** FastAPI (High-performance Async API).
-    * **Responsibility:** Handles PDF ingestion, Chunking, Vectorization (ChromaDB), and LLM Inference (Llama 3.3 via Groq).
+    * **Responsibility:** Handles PDF ingestion, Chunking, Embedding Generation (ChromaDB), and LLM Inference (Llama 3.3 via Groq).
     * **Endpoints:** `/ingest` (Upload) and `/chat` (Q&A).
 
 2.  **Frontend Service (`ui.py`):**

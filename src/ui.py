@@ -5,40 +5,40 @@ import requests
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-st.set_page_config(page_title="Assistente de Documentos (Via API)", page_icon="📡")
+st.set_page_config(page_title="Document Assistant (RAG)", page_icon="📡")
 
-st.title("📡 Chat com Docs (Arquitetura API)")
+st.title("📡 Document Assistant (RAG)")
 
-# --- BARRA LATERAL (Upload) ---
+# --- Sidebar (Upload) ---
 with st.sidebar:
-    st.header("1. Carregar Documento")
-    uploaded_file = st.file_uploader("Envia o teu PDF aqui", type="pdf")
+    st.header("1. Load Document ")
+    uploaded_file = st.file_uploader("Send your PDF here", type="pdf")
     
     if uploaded_file:
-        if st.button("Enviar para a API 🚀"):
-            with st.spinner("A enviar bytes para o servidor..."):
+        if st.button("Send to API 🚀"):
+            with st.spinner("Sending bytes to the server..."):
                 try:
-                    # 1. Preparar o ficheiro para envio via HTTP
+                    # 1. Prepare file for upload
                     files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
                     
-                    # 2. Fazer o POST request para o endpoint /ingest
+                    # 2. Post to /ingest endpoint
                     response = requests.post(f"{API_URL}/ingest", files=files)
                     
                     if response.status_code == 200:
-                        st.success("API: Documento processado com sucesso!")
+                        st.success("API: Document processed successfully!")
                         st.session_state["db_ready"] = True
                     else:
-                        st.error(f"Erro na API: {response.text}")
+                        st.error(f"Error in API: {response.text}")
                         
                 except Exception as e:
-                    st.error(f"Não consegui contactar a API. Ela está ligada? Erro: {e}")
+                    st.error(f"Failed to contact the API. Is it running? Error: {e}")
 
-# --- ÁREA PRINCIPAL (Chat) ---
+# --- MAIN AREA (Chat) ---
 
 if st.session_state.get("db_ready"):
-    st.caption("Conectado ao Cérebro Remoto via FastAPI.")
+    st.caption("Connected to FastAPI.")
 
-    # Histórico de mensagens
+    # History of messages
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
@@ -47,37 +47,36 @@ if st.session_state.get("db_ready"):
             st.markdown(message["content"])
 
     # Input do utilizador
-    if prompt := st.chat_input("Pergunte algo sobre o PDF..."):
+    if prompt := st.chat_input("Ask your question about the document"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            with st.spinner("A aguardar resposta da API..."):
+            with st.spinner("Waiting for response..."):
                 try:
-                    # 3. Enviar a pergunta para o endpoint /chat
+                    # 3. Send to API
                     payload = {"query": prompt}
                     response = requests.post(f"{API_URL}/chat", json=payload)
                     
                     if response.status_code == 200:
                         data = response.json()
-                        answer = data.get("response", "Sem resposta.")
+                        answer = data.get("response", "No answer.")
                         sources = data.get("sources", [])
                         
                         st.markdown(answer)
                         
-                        # Mostrar fontes vindas do JSON
+                        # Show sources
                         if sources:
-                            with st.expander("Ver fontes (JSON)"):
+                            with st.expander("Show sources (JSON)"):
                                 st.json(sources)
                                 
-                        # Atualizar histórico
+                        # Update history
                         st.session_state.messages.append({"role": "assistant", "content": answer})
                     else:
-                        st.error(f"Erro da API: {response.status_code}")
+                        st.error(f"Error from API: {response.status_code}")
                         
                 except Exception as e:
-                    st.error(f"Erro de conexão: {e}")
-
+                    st.error(f"Connection error: {e}")
 else:
-    st.info("👈 A API está à espera do teu PDF na barra lateral.")
+    st.info("👈 Please upload a PDF in the sidebar.")

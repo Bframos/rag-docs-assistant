@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. LIMPEZA MANUAL (Sem depender de plugins externos)
-    # Removemos Android SDK, DotNet e Haskell que ocupam muito espaço
+    # Remove unnecessary files to free up disk space
     - name: Free Disk Space (Manual Cleanup)
       run: |
         sudo rm -rf /usr/local/lib/android
@@ -21,11 +20,11 @@ jobs:
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-    # 2. Baixar código
+    # 2. Download code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 3. Configurar Python
+    # 3. Python config
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:

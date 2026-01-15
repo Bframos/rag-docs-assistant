@@ -1,5 +1,5 @@
 services:
-  # SERVIÇO 1: O CÉREBRO (API)
+  # Backend service
   backend:
     build: .
     container_name: rag-backend
@@ -11,17 +11,16 @@ services:
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
-      - ./data:/app/data  # Para persistir os PDFs se reiniciares
+      - ./data:/app/data  # Persist data locally
 
-  # SERVIÇO 2: A CARA (Frontend)
+  # Frontend service
   frontend:
     build: .
     container_name: rag-frontend
-    command: streamlit run src/ui.py --server.address=0.0.0.0
+    command: python -m streamlit run src/ui.py --server.address=0.0.0.0
     ports:
       - "8501:8501"
     environment:
-      # AQUI ESTÁ A MAGIA: O frontend chama o backend pelo nome do serviço!
-      - API_URL=http://backend:8000
+      - API_URL=http://backend:8000 # Point to backend service
     depends_on:
-      - backend  # O frontend só arranca se a API estiver viva
+      - backend  # frontend depends on backend

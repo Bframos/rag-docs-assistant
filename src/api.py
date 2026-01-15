@@ -7,7 +7,7 @@ from src.app import query_rag
 
 app = FastAPI(title="RAG API")
 
-# Modelo de dados para a pergunta
+# Model for the chat request
 class QueryRequest(BaseModel):
     query: str
 
@@ -18,23 +18,23 @@ def read_root():
 @app.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
     """
-    Recebe um ficheiro PDF e processa-o para o ChromaDB.
+    Receives a document file and processes it for ingestion.
     """
     try:
-        # Salvar o ficheiro temporariamente
+        # Save the uploaded file to a temporary location
         os.makedirs("data", exist_ok=True)
         file_path = f"data/{file.filename}"
         
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        # Correr a função de ingestão que já criámos
+        # Run the ingestion process
         success = ingest_file(file_path)
         
         if success:
-            return {"message": "Documento processado com sucesso!", "filename": file.filename}
+            return {"message": "Document processed successfully!", "filename": file.filename}
         else:
-            raise HTTPException(status_code=500, detail="Erro na ingestão")
+            raise HTTPException(status_code=500, detail="Error processing document.")
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -42,12 +42,12 @@ async def ingest_document(file: UploadFile = File(...)):
 @app.post("/chat")
 def chat_endpoint(request: QueryRequest):
     """
-    Recebe uma pergunta e devolve a resposta do LLM.
+    Receives a query and returns a response along with source documents.
     """
     try:
         response_text, sources = query_rag(request.query)
         
-        # Formatar as fontes para JSON
+        # format sources for JSON response
         sources_json = [
             {"content": doc.page_content, "page": doc.metadata.get("page_label")} 
             for doc in sources
